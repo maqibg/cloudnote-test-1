@@ -1,0 +1,65 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 构建输出
+dist/
+build/
+*.js.map
+
+# 数据文件（在容器中创建）
+data/
+storage/
+backups/
+
+# 开发工具
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 测试
+coverage/
+.nyc_output/
+*.test.js
+*.spec.js
+
+# 日志
+logs/
+*.log
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# 文档
+*.md
+docs/
+LICENSE
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# SSL 证书（生产环境单独管理）
+ssl/
+*.pem
+*.key
+*.crt

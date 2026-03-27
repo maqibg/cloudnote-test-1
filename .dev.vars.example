@@ -1,0 +1,12 @@
+# CloudNote 环境变量示例
+# Deploy Button 会提示用户设置这些 secrets
+
+# 管理员用户名（默认: admin）
+ADMIN_USERNAME=admin
+
+# 管理员密码（必须设置，建议使用强密码）
+ADMIN_PASSWORD=your_secure_password_here
+
+# JWT 签名密钥（自动生成或手动设置 32 字节 base64 字符串）
+# 生成方法: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+JWT_SECRET=your_jwt_secret_here

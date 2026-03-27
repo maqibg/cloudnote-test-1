@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  cloudnote:
+    image: cloudnote-server:latest
+    container_name: cloudnote-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      # 数据持久化
+      - ./data:/app/data
+      - ./storage:/app/storage
+      # 环境变量文件
+      - ./.env:/app/.env:ro
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT:-3000}
+      - HOST=${HOST:-0.0.0.0}
+      - DATABASE_PATH=${DATABASE_PATH:-./data/cloudnote.db}
+      - STORAGE_PATH=${STORAGE_PATH:-./storage}
+      - CACHE_TTL=${CACHE_TTL:-3600}
+      - CACHE_CHECK_PERIOD=${CACHE_CHECK_PERIOD:-600}
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_USER=${ADMIN_USER:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - PATH_MIN_LENGTH=${PATH_MIN_LENGTH:-1}
+      - PATH_MAX_LENGTH=${PATH_MAX_LENGTH:-20}
+      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-60}
+      - SESSION_DURATION=${SESSION_DURATION:-86400}
+    restart: unless-stopped
+    networks:
+      - cloudnote-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # 可选：Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: cloudnote-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      - cloudnote
+    networks:
+      - cloudnote-network
+    restart: unless-stopped
+    profiles:
+      - with-nginx
+
+  # 可选：备份服务
+  backup:
+    image: alpine:latest
+    container_name: cloudnote-backup
+    volumes:
+      - ./data:/data:ro
+      - ./storage:/storage:ro
+      - ./backups:/backups
+    command: |
+      sh -c "
+      while true; do
+        echo 'Starting backup...'
+        tar -czf /backups/cloudnote_backup_$$(date +%Y%m%d_%H%M%S).tar.gz /data /storage
+        find /backups -name 'cloudnote_backup_*.tar.gz' -mtime +7 -delete
+        echo 'Backup completed'
+        sleep 86400
+      done
+      "
+    restart: unless-stopped
+    networks:
+      - cloudnote-network
+    profiles:
+      - with-backup
+
+networks:
+  cloudnote-network:
+    driver: bridge
+
+volumes:
+  nginx_cache:
+    driver: local

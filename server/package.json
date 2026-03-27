@@ -1,0 +1,30 @@
+{
+  "name": "cloudnote-server",
+  "version": "1.0.0",
+  "description": "CloudNote server version - A self-hosted note-taking application",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "clean": "rimraf dist"
+  },
+  "keywords": ["note", "sqlite", "hono", "self-hosted"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "hono": "^4.6.13",
+    "@hono/node-server": "^1.13.7",
+    "better-sqlite3": "^11.7.0",
+    "node-cache": "^5.1.2",
+    "jose": "^5.10.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.9",
+    "@types/better-sqlite3": "^7.6.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "rimraf": "^6.0.1"
+  }
+}
